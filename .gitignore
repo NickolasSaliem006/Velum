@@ -1,0 +1,11 @@
+data/assistant.db
+data/cv.pdf
+data/profile.json
+data/screenshots/
+data/rainmeter_data.json
+logs/
+.env
+__pycache__/
+*.pyc
+*.pyc
+.DS_Store
