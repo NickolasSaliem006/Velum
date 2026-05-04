@@ -1,0 +1,23 @@
+{
+  "name": "@velum/contracts",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "forge test -vv",
+    "test:hardhat": "hardhat test",
+    "deploy:local": "hardhat run script/deploy.ts --network localhost",
+    "deploy:amoy": "hardhat run script/deploy.ts --network amoy",
+    "clean": "hardhat clean && forge clean"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.3.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-foundry": "^1.1.3",
+    "hardhat": "^2.22.19",
+    "typescript": "^5.8.3",
+    "@types/node": "^24.0.0",
+    "dotenv": "^16.5.0"
+  }
+}

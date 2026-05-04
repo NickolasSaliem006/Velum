@@ -1,0 +1,35 @@
+{
+  "name": "velum",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "clean": "turbo clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3",
+    "@types/node": "^24.0.0",
+    "prettier": "^3.5.3",
+    "eslint": "^9.27.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["bufferutil", "esbuild", "keccak", "secp256k1", "unrs-resolver", "utf-8-validate"]
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,json,md}": [
+      "prettier --write"
+    ]
+  }
+}

@@ -1,11 +1,27 @@
-data/assistant.db
-data/cv.pdf
-data/profile.json
-data/screenshots/
-data/rainmeter_data.json
-logs/
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+.next/
+dist/
+out/
+
+# env
 .env
-__pycache__/
-*.pyc
-*.pyc
+.env.local
+.env.*.local
+
+# foundry
+cache/
+out/
+
+# misc
 .DS_Store
+*.log
+coverage/
+*.lcov
+
+# deployment artifacts (keep deployments/ dir but ignore local cache)
+contracts/cache/
+contracts/out/
