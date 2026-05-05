@@ -75,7 +75,11 @@ export default function DoctorPage() {
   const [formSuccess, setFormSuccess] = useState('')
 
   const { writeContract: doWrite, data: writeTxHash, isPending: writePending } = useWriteContract()
-  const { writeContract: doCosign, data: cosignTxHash, isPending: cosignPending } = useWriteContract()
+  const {
+    writeContract: doCosign,
+    data: cosignTxHash,
+    isPending: cosignPending,
+  } = useWriteContract()
   const { isLoading: writeConfirming } = useWaitForTransactionReceipt({ hash: writeTxHash })
   const { isLoading: cosignConfirming } = useWaitForTransactionReceipt({ hash: cosignTxHash })
 
@@ -93,15 +97,18 @@ export default function DoctorPage() {
       return
     }
 
-    doWrite({
-      address: CONTRACT_ADDRESSES.RecordRegistry,
-      abi: RECORD_REGISTRY_ABI,
-      functionName: 'writeRecord',
-      args: [form.patient as `0x${string}`, form.cid, Number(form.severity) as 0 | 1 | 2],
-    }, {
-      onSuccess: () => setFormSuccess('Record submitted! Awaiting confirmation…'),
-      onError: (err) => setFormError(err.message.split('\n')[0]),
-    })
+    doWrite(
+      {
+        address: CONTRACT_ADDRESSES.RecordRegistry,
+        abi: RECORD_REGISTRY_ABI,
+        functionName: 'writeRecord',
+        args: [form.patient as `0x${string}`, form.cid, Number(form.severity) as 0 | 1 | 2],
+      },
+      {
+        onSuccess: () => setFormSuccess('Record submitted! Awaiting confirmation…'),
+        onError: (err) => setFormError(err.message.split('\n')[0]),
+      }
+    )
   }
 
   function handleCosign(recordId: `0x${string}`) {
@@ -116,11 +123,11 @@ export default function DoctorPage() {
   return (
     <div className="min-h-screen bg-obsidian">
       {/* Nav */}
-      <header className="border-b border-bone/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Stethoscope className="text-accent w-5 h-5" />
+      <header className="border-b border-bone/10 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Stethoscope className="text-accent w-5 h-5 shrink-0" />
           <span className="font-semibold text-bone">Velum</span>
-          <span className="text-bone/40 text-sm">/ Doctor Interface</span>
+          <span className="text-bone/40 text-sm hidden sm:inline">/ Doctor Interface</span>
         </div>
         <ConnectButton />
       </header>
@@ -132,7 +139,7 @@ export default function DoctorPage() {
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Write record form */}
         <div>
           <h2 className="font-semibold text-bone mb-4 flex items-center gap-2">
@@ -155,7 +162,9 @@ export default function DoctorPage() {
               <div>
                 <label className="text-xs text-bone/50 block mb-1">
                   Content CID
-                  <span className="ml-1 text-bone/30">(SHA-256 of encrypted content, 64 hex chars)</span>
+                  <span className="ml-1 text-bone/30">
+                    (SHA-256 of encrypted content, 64 hex chars)
+                  </span>
                 </label>
                 <input
                   type="text"
@@ -176,13 +185,13 @@ export default function DoctorPage() {
                       key={s}
                       type="button"
                       onClick={() => setForm((f) => ({ ...f, severity: s }))}
-                      className={`flex-1 py-2 rounded text-sm font-medium transition-colors border ${
+                      className={`flex-1 min-h-[44px] py-2.5 rounded text-sm font-medium transition-colors border ${
                         form.severity === s
-                          ? `border-transparent ${SEVERITY_COLORS[Number(s) as 0|1|2]}`
+                          ? `border-transparent ${SEVERITY_COLORS[Number(s) as 0 | 1 | 2]}`
                           : 'border-bone/20 text-bone/50 hover:text-bone'
                       }`}
                     >
-                      {SEVERITY_LABELS[Number(s) as 0|1|2]}
+                      {SEVERITY_LABELS[Number(s) as 0 | 1 | 2]}
                     </button>
                   ))}
                 </div>
@@ -220,7 +229,9 @@ export default function DoctorPage() {
               <Clock className="w-4 h-4 text-yellow-400" />
               Pending Co-Signatures
               {isDemo && (
-                <span className="ml-auto text-xs text-bone/30 font-normal">{DEMO_PENDING.length} demo</span>
+                <span className="ml-auto text-xs text-bone/30 font-normal">
+                  {DEMO_PENDING.length} demo
+                </span>
               )}
             </h2>
             {(isDemo ? DEMO_PENDING : []).map((rec) => (
@@ -237,7 +248,7 @@ export default function DoctorPage() {
                 <button
                   onClick={() => handleCosign(rec.id)}
                   disabled={!isConnected || cosignPending || cosignConfirming}
-                  className="flex items-center gap-1 text-xs bg-accent/20 hover:bg-accent/30 text-accent rounded px-3 py-1.5 transition-colors disabled:opacity-40"
+                  className="flex items-center gap-1 text-xs bg-accent/20 hover:bg-accent/30 text-accent rounded px-3 py-2.5 min-h-[44px] transition-colors disabled:opacity-40"
                 >
                   <CheckCircle2 className="w-3 h-3" />
                   Co-sign

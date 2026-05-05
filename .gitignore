@@ -22,6 +22,13 @@ out/
 coverage/
 *.lcov
 
-# deployment artifacts (keep deployments/ dir but ignore local cache)
+# hardhat build artifacts
 contracts/cache/
+contracts/cache_hardhat/
 contracts/out/
+contracts/artifacts/
+contracts/typechain-types/
+
+# next.js build info
+apps/web/tsconfig.tsbuildinfo
+apps/web/next-env.d.ts

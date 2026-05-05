@@ -25,8 +25,16 @@ const FEATURES = [
 
 const ROLES = [
   { href: '/patient', label: 'Patient Portal', color: 'bg-accent hover:bg-accent-hover' },
-  { href: '/doctor', label: 'Doctor Interface', color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20' },
-  { href: '/hospital', label: 'Hospital Dashboard', color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20' },
+  {
+    href: '/doctor',
+    label: 'Doctor Interface',
+    color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20',
+  },
+  {
+    href: '/hospital',
+    label: 'Hospital Dashboard',
+    color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20',
+  },
 ]
 
 export default function LandingPage() {
@@ -39,16 +47,22 @@ export default function LandingPage() {
           Prototype — deploy contracts to go live
         </div>
         <h1 className="text-5xl font-bold tracking-tight text-bone mb-6">
-          The Trust Layer for<br />Medical Records
+          The Trust Layer for
+          <br />
+          Medical Records
         </h1>
         <p className="mx-auto max-w-2xl text-lg text-bone/60 mb-10">
           Velum gives patients full control over who sees their data. Every access request is
-          cryptographically verified. Every event is permanently audited on-chain.
-          No central server. No database administrator. No company that can be subpoenaed.
+          cryptographically verified. Every event is permanently audited on-chain. No central
+          server. No database administrator. No company that can be subpoenaed.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           {ROLES.map((r) => (
-            <Link key={r.href} href={r.href} className={`rounded-lg px-6 py-3 font-semibold transition-colors ${r.color}`}>
+            <Link
+              key={r.href}
+              href={r.href}
+              className={`rounded-lg px-6 py-3 font-semibold transition-colors ${r.color}`}
+            >
               {r.label}
             </Link>
           ))}
@@ -70,7 +84,8 @@ export default function LandingPage() {
       <footer className="w-full border-t border-bone/10 py-6 text-center text-xs text-bone/40">
         <strong>PROTOTYPE NOTE:</strong> ZK proofs are simulated (Ed25519-signed claims). IPFS
         storage runs on a single local server. Threshold encryption is mocked. Real components:
-        Polygon smart contracts, AES-GCM encryption, Ed25519 signatures, on-chain consent enforcement.
+        Polygon smart contracts, AES-GCM encryption, Ed25519 signatures, on-chain consent
+        enforcement.
       </footer>
     </main>
   )

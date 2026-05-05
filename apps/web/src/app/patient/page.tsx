@@ -2,7 +2,17 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { useState, useCallback, useEffect } from 'react'
-import { ShieldCheck, Plus, Trash2, FileText, Clock, Lock, Unlock, Loader2, BadgeCheck } from 'lucide-react'
+import {
+  ShieldCheck,
+  Plus,
+  Trash2,
+  FileText,
+  Clock,
+  Lock,
+  Unlock,
+  Loader2,
+  BadgeCheck,
+} from 'lucide-react'
 import {
   CONTRACT_ADDRESSES,
   RECORD_REGISTRY_ABI,
@@ -72,22 +82,33 @@ type DecryptState =
   | { phase: 'plaintext'; text: string }
 
 async function aesEncrypt(plaintext: string): Promise<{ blob: string; key: string; iv: string }> {
-  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
+  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, [
+    'encrypt',
+    'decrypt',
+  ])
   const iv = crypto.getRandomValues(new Uint8Array(12))
-  const buf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext))
+  const buf = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(plaintext)
+  )
   const exportedKey = await crypto.subtle.exportKey('raw', key)
   return {
-    blob: Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''),
+    blob: Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join(''),
     key: btoa(String.fromCharCode(...new Uint8Array(exportedKey))),
     iv: btoa(String.fromCharCode(...iv)),
   }
 }
 
 async function aesDecrypt(blob: string, key: string, iv: string): Promise<string> {
-  const keyBytes = Uint8Array.from(atob(key), c => c.charCodeAt(0))
-  const ivBytes = Uint8Array.from(atob(iv), c => c.charCodeAt(0))
-  const cipher = Uint8Array.from(blob.match(/.{2}/g)!.map(h => parseInt(h, 16)))
-  const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt'])
+  const keyBytes = Uint8Array.from(atob(key), (c) => c.charCodeAt(0))
+  const ivBytes = Uint8Array.from(atob(iv), (c) => c.charCodeAt(0))
+  const cipher = Uint8Array.from(blob.match(/.{2}/g)!.map((h) => parseInt(h, 16)))
+  const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, [
+    'decrypt',
+  ])
   const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, cipher)
   return new TextDecoder().decode(plain)
 }
@@ -103,7 +124,11 @@ function formatTime(ts: bigint) {
 }
 
 function severityBadge(s: 0 | 1 | 2) {
-  const colors = ['text-green-400 bg-green-400/10', 'text-yellow-400 bg-yellow-400/10', 'text-red-400 bg-red-400/10']
+  const colors = [
+    'text-green-400 bg-green-400/10',
+    'text-yellow-400 bg-yellow-400/10',
+    'text-red-400 bg-red-400/10',
+  ]
   return (
     <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[s]}`}>
       {SEVERITY_LABELS[s]}
@@ -130,11 +155,17 @@ export default function PatientPage() {
     Promise.all(
       DEMO_RECORDS.map(async (rec) => {
         const kp = generateKeypair()
-        const claim = issueAccessClaim(verifier, rec.id, DEMO_GRANTS[0].grantId, Date.now() / 1000 + 3600, kp.privateKey)
+        const claim = issueAccessClaim(
+          verifier,
+          rec.id,
+          DEMO_GRANTS[0].grantId,
+          Date.now() / 1000 + 3600,
+          kp.privateKey
+        )
         const valid = verifyAccessClaim(claim, kp.publicKey)
         return [rec.id, valid] as const
       })
-    ).then(results => {
+    ).then((results) => {
       setZkVerified(Object.fromEntries(results))
     })
   }, [isDemo])
@@ -159,8 +190,16 @@ export default function PatientPage() {
 
   // ── Contract writes ─────────────────────────────────────────────────────────
 
-  const { writeContract: doGrantConsent, data: grantTxHash, isPending: grantPending } = useWriteContract()
-  const { writeContract: doRevoke, data: revokeTxHash, isPending: revokePending } = useWriteContract()
+  const {
+    writeContract: doGrantConsent,
+    data: grantTxHash,
+    isPending: grantPending,
+  } = useWriteContract()
+  const {
+    writeContract: doRevoke,
+    data: revokeTxHash,
+    isPending: revokePending,
+  } = useWriteContract()
   const { isLoading: grantConfirming } = useWaitForTransactionReceipt({ hash: grantTxHash })
   const { isLoading: revokeConfirming } = useWaitForTransactionReceipt({ hash: revokeTxHash })
 
@@ -183,7 +222,11 @@ export default function PatientPage() {
       address: CONTRACT_ADDRESSES.AccessController,
       abi: ACCESS_CONTROLLER_ABI,
       functionName: 'grantConsent',
-      args: [grantForm.verifier as `0x${string}`, grantForm.recordId as `0x${string}`, BigInt(grantForm.duration)],
+      args: [
+        grantForm.verifier as `0x${string}`,
+        grantForm.recordId as `0x${string}`,
+        BigInt(grantForm.duration),
+      ],
     })
   }
 
@@ -196,29 +239,32 @@ export default function PatientPage() {
     })
   }
 
-  const handleDecrypt = useCallback(async (recordId: string) => {
-    const current = decryptStates[recordId]
+  const handleDecrypt = useCallback(
+    async (recordId: string) => {
+      const current = decryptStates[recordId]
 
-    // Cycle: idle → encrypting → ciphertext → decrypting → plaintext → idle
-    if (!current || current.phase === 'idle') {
-      setDecryptStates(s => ({ ...s, [recordId]: { phase: 'encrypting' } }))
-      const plaintext = DEMO_PLAINTEXT[recordId] ?? 'Medical record content (demo)'
-      const { blob, key, iv } = await aesEncrypt(plaintext)
-      setDecryptStates(s => ({ ...s, [recordId]: { phase: 'ciphertext', blob, key, iv } }))
-      return
-    }
+      // Cycle: idle → encrypting → ciphertext → decrypting → plaintext → idle
+      if (!current || current.phase === 'idle') {
+        setDecryptStates((s) => ({ ...s, [recordId]: { phase: 'encrypting' } }))
+        const plaintext = DEMO_PLAINTEXT[recordId] ?? 'Medical record content (demo)'
+        const { blob, key, iv } = await aesEncrypt(plaintext)
+        setDecryptStates((s) => ({ ...s, [recordId]: { phase: 'ciphertext', blob, key, iv } }))
+        return
+      }
 
-    if (current.phase === 'ciphertext') {
-      setDecryptStates(s => ({ ...s, [recordId]: { phase: 'decrypting' } }))
-      const plaintext = await aesDecrypt(current.blob, current.key, current.iv)
-      setDecryptStates(s => ({ ...s, [recordId]: { phase: 'plaintext', text: plaintext } }))
-      return
-    }
+      if (current.phase === 'ciphertext') {
+        setDecryptStates((s) => ({ ...s, [recordId]: { phase: 'decrypting' } }))
+        const plaintext = await aesDecrypt(current.blob, current.key, current.iv)
+        setDecryptStates((s) => ({ ...s, [recordId]: { phase: 'plaintext', text: plaintext } }))
+        return
+      }
 
-    if (current.phase === 'plaintext') {
-      setDecryptStates(s => ({ ...s, [recordId]: { phase: 'idle' } }))
-    }
-  }, [decryptStates])
+      if (current.phase === 'plaintext') {
+        setDecryptStates((s) => ({ ...s, [recordId]: { phase: 'idle' } }))
+      }
+    },
+    [decryptStates]
+  )
 
   // ── Display data (demo or real) ─────────────────────────────────────────────
 
@@ -228,11 +274,11 @@ export default function PatientPage() {
   return (
     <div className="min-h-screen bg-obsidian">
       {/* Nav */}
-      <header className="border-b border-bone/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="text-accent w-5 h-5" />
+      <header className="border-b border-bone/10 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <ShieldCheck className="text-accent w-5 h-5 shrink-0" />
           <span className="font-semibold text-bone">Velum</span>
-          <span className="text-bone/40 text-sm">/ Patient Portal</span>
+          <span className="text-bone/40 text-sm hidden sm:inline">/ Patient Portal</span>
         </div>
         <ConnectButton />
       </header>
@@ -245,12 +291,10 @@ export default function PatientPage() {
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-bone">My Health Records</h1>
-          {isConnected && (
-            <p className="text-bone/50 text-sm mt-1">{address}</p>
-          )}
+          {isConnected && <p className="text-bone/50 text-sm mt-1">{address}</p>}
         </div>
 
         {/* Tabs */}
@@ -297,7 +341,10 @@ export default function PatientPage() {
                           </span>
                         )}
                         {zkVerified[rec.id] && (
-                          <span className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium text-accent bg-accent/10" title="ZK access claim verified (Ed25519 simulation)">
+                          <span
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium text-accent bg-accent/10"
+                            title="ZK access claim verified (Ed25519 simulation)"
+                          >
                             <BadgeCheck className="w-3 h-3" />
                             ZK Verified
                           </span>
@@ -332,26 +379,44 @@ export default function PatientPage() {
                     <div className="mt-3 pt-3 border-t border-bone/10">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs text-bone/40 flex items-center gap-1">
-                          {ds.phase === 'plaintext'
-                            ? <><Unlock className="w-3 h-3 text-green-400" /><span className="text-green-400">Decrypted with AES-GCM</span></>
-                            : ds.phase === 'ciphertext'
-                            ? <><Lock className="w-3 h-3 text-yellow-400" /><span className="text-yellow-400">Encrypted — AES-256-GCM</span></>
-                            : <><Lock className="w-3 h-3" /> Content encrypted at rest</>
-                          }
+                          {ds.phase === 'plaintext' ? (
+                            <>
+                              <Unlock className="w-3 h-3 text-green-400" />
+                              <span className="text-green-400">Decrypted with AES-GCM</span>
+                            </>
+                          ) : ds.phase === 'ciphertext' ? (
+                            <>
+                              <Lock className="w-3 h-3 text-yellow-400" />
+                              <span className="text-yellow-400">Encrypted — AES-256-GCM</span>
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-3 h-3" /> Content encrypted at rest
+                            </>
+                          )}
                         </p>
                         <button
                           onClick={() => handleDecrypt(rec.id)}
                           disabled={ds.phase === 'encrypting' || ds.phase === 'decrypting'}
                           className="flex items-center gap-1 text-xs bg-bone/10 hover:bg-bone/20 disabled:opacity-40 text-bone rounded px-2.5 py-1 transition-colors"
                         >
-                          {ds.phase === 'encrypting' || ds.phase === 'decrypting'
-                            ? <><Loader2 className="w-3 h-3 animate-spin" /> Working…</>
-                            : ds.phase === 'ciphertext'
-                            ? <><Unlock className="w-3 h-3" /> Decrypt</>
-                            : ds.phase === 'plaintext'
-                            ? <><Lock className="w-3 h-3" /> Hide</>
-                            : <><Lock className="w-3 h-3" /> Show encrypted</>
-                          }
+                          {ds.phase === 'encrypting' || ds.phase === 'decrypting' ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" /> Working…
+                            </>
+                          ) : ds.phase === 'ciphertext' ? (
+                            <>
+                              <Unlock className="w-3 h-3" /> Decrypt
+                            </>
+                          ) : ds.phase === 'plaintext' ? (
+                            <>
+                              <Lock className="w-3 h-3" /> Hide
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-3 h-3" /> Show encrypted
+                            </>
+                          )}
                         </button>
                       </div>
 
@@ -361,7 +426,9 @@ export default function PatientPage() {
                           <p className="font-mono text-xs text-yellow-400/70 break-all leading-relaxed">
                             {ds.blob.slice(0, 120)}…
                           </p>
-                          <p className="text-xs text-bone/30 mt-2">IV: <span className="font-mono text-bone/50">{ds.iv}</span></p>
+                          <p className="text-xs text-bone/30 mt-2">
+                            IV: <span className="font-mono text-bone/50">{ds.iv}</span>
+                          </p>
                         </div>
                       )}
 

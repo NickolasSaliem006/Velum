@@ -80,16 +80,13 @@ function Badge({ s }: { s: 0 | 1 | 2 }) {
 function ExpiryBadge({ ts }: { ts: bigint }) {
   const diff = Number(ts) - Math.floor(Date.now() / 1000)
   const label = expiresIn(ts)
-  const color = diff < 86400
-    ? 'text-red-400 bg-red-400/10'
-    : diff < 86400 * 3
-    ? 'text-yellow-400 bg-yellow-400/10'
-    : 'text-green-400 bg-green-400/10'
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${color}`}>
-      {label}
-    </span>
-  )
+  const color =
+    diff < 86400
+      ? 'text-red-400 bg-red-400/10'
+      : diff < 86400 * 3
+        ? 'text-yellow-400 bg-yellow-400/10'
+        : 'text-green-400 bg-green-400/10'
+  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${color}`}>{label}</span>
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -104,11 +101,11 @@ export default function HospitalPage() {
   return (
     <div className="min-h-screen bg-obsidian">
       {/* Nav */}
-      <header className="border-b border-bone/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Building2 className="text-accent w-5 h-5" />
+      <header className="border-b border-bone/10 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Building2 className="text-accent w-5 h-5 shrink-0" />
           <span className="font-semibold text-bone">Velum</span>
-          <span className="text-bone/40 text-sm">/ Hospital Dashboard</span>
+          <span className="text-bone/40 text-sm hidden sm:inline">/ Hospital Dashboard</span>
         </div>
         <ConnectButton />
       </header>
@@ -120,23 +117,31 @@ export default function HospitalPage() {
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-bone">Consented Records</h1>
           <p className="text-bone/50 text-sm mt-1">
-            Read-only view of patient records where consent has been granted to this hospital.
-            All access is enforced on-chain.
+            Read-only view of patient records where consent has been granted to this hospital. All
+            access is enforced on-chain.
           </p>
         </div>
 
         {/* Stats bar */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
             { label: 'Active Grants', value: records.length, icon: ShieldCheck },
             { label: 'Total Records', value: records.length, icon: FileText },
-            { label: 'Expiring Soon', value: records.filter(r => Number(r.grantExpiresAt) - Date.now() / 1000 < 86400 * 3).length, icon: Clock },
+            {
+              label: 'Expiring Soon',
+              value: records.filter((r) => Number(r.grantExpiresAt) - Date.now() / 1000 < 86400 * 3)
+                .length,
+              icon: Clock,
+            },
           ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-bone/5 border border-bone/10 rounded-lg p-4 flex items-center gap-3">
+            <div
+              key={label}
+              className="bg-bone/5 border border-bone/10 rounded-lg p-4 flex items-center gap-3"
+            >
               <Icon className="w-5 h-5 text-accent shrink-0" />
               <div>
                 <p className="text-2xl font-bold text-bone">{value}</p>
@@ -176,7 +181,8 @@ export default function HospitalPage() {
                     <p className="font-mono text-xs text-bone/70">{short(rec.id)}</p>
                     <div className="flex items-center gap-4">
                       <p className="text-xs text-bone/50">
-                        Patient: <span className="font-mono text-bone/70">{short(rec.patient)}</span>
+                        Patient:{' '}
+                        <span className="font-mono text-bone/70">{short(rec.patient)}</span>
                       </p>
                       <p className="text-xs text-bone/50">
                         Doctor: <span className="font-mono text-bone/70">{short(rec.doctor)}</span>
@@ -207,7 +213,8 @@ export default function HospitalPage() {
                     <div className="flex items-center gap-2 pt-1">
                       <ShieldCheck className="w-3 h-3 text-accent" />
                       <p className="text-xs text-accent/80">
-                        Access cryptographically verified on-chain. Decryption requires patient&apos;s key.
+                        Access cryptographically verified on-chain. Decryption requires
+                        patient&apos;s key.
                       </p>
                     </div>
                   </div>
