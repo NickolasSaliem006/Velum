@@ -1,8 +1,8 @@
 'use client'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { useState, useCallback } from 'react'
-import { ShieldCheck, Plus, Trash2, FileText, Clock, Lock, Unlock, Loader2 } from 'lucide-react'
+import { useState, useCallback, useEffect } from 'react'
+import { ShieldCheck, Plus, Trash2, FileText, Clock, Lock, Unlock, Loader2, BadgeCheck } from 'lucide-react'
 import {
   CONTRACT_ADDRESSES,
   RECORD_REGISTRY_ABI,
@@ -12,6 +12,7 @@ import {
   ONE_WEEK,
   THIRTY_DAYS,
 } from '@/lib/contracts'
+import { generateKeypair, issueAccessClaim, verifyAccessClaim } from '@velum/crypto-lib'
 
 // ── Demo data shown when no wallet is connected ───────────────────────────────
 
@@ -118,8 +119,25 @@ export default function PatientPage() {
   const [grantForm, setGrantForm] = useState({ verifier: '', recordId: '', duration: '86400' })
   const [grantError, setGrantError] = useState('')
   const [decryptStates, setDecryptStates] = useState<Record<string, DecryptState>>({})
+  const [zkVerified, setZkVerified] = useState<Record<string, boolean>>({})
 
   const isDemo = !isConnected
+
+  // Issue and immediately verify a demo ZK claim for each record on mount
+  useEffect(() => {
+    if (!isDemo) return
+    const verifier = DEMO_GRANTS[0].verifier
+    Promise.all(
+      DEMO_RECORDS.map(async (rec) => {
+        const kp = generateKeypair()
+        const claim = issueAccessClaim(verifier, rec.id, DEMO_GRANTS[0].grantId, Date.now() / 1000 + 3600, kp.privateKey)
+        const valid = verifyAccessClaim(claim, kp.publicKey)
+        return [rec.id, valid] as const
+      })
+    ).then(results => {
+      setZkVerified(Object.fromEntries(results))
+    })
+  }, [isDemo])
 
   // ── Contract reads ──────────────────────────────────────────────────────────
 
@@ -271,11 +289,17 @@ export default function PatientPage() {
                   {/* Record header */}
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {severityBadge(rec.severity)}
                         {rec.finalized && (
                           <span className="px-2 py-0.5 rounded text-xs font-medium text-green-400 bg-green-400/10">
                             Finalized
+                          </span>
+                        )}
+                        {zkVerified[rec.id] && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium text-accent bg-accent/10" title="ZK access claim verified (Ed25519 simulation)">
+                            <BadgeCheck className="w-3 h-3" />
+                            ZK Verified
                           </span>
                         )}
                       </div>
