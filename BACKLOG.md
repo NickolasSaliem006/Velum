@@ -24,22 +24,24 @@ Last updated: 2026-05-05
 ## P1 — Strong pitch signal
 
 - [x] Audit trail page: on-chain event feed with filter + search ✅
+- [x] Audit trail linked from landing page ✅
 - [x] ZK access claim badge in patient UI ✅
 - [x] Live AES-GCM encrypt/decrypt demo in browser ✅
 - [x] CI pipeline (GitHub Actions): forge + vitest + playwright + build ✅
 - [x] Geist font properly injected via next/font ✅
-- [x] Playwright e2e config + 14 demo flow tests ✅
+- [x] Playwright e2e config + 14 demo flow tests (15 after audit link) ✅
+- [x] Mobile-responsive polish: patient + doctor + hospital + audit ✅
+- [x] Husky + lint-staged pre-commit hooks ✅
+- [x] Next.js upgraded to 15.5.15 ✅
 - [ ] Record backup demo video — must do manually
-- [ ] Mobile-responsive polish pass on patient/doctor pages
 
 ---
 
 ## P2 — Nice to have
 
-- [ ] Patch Next.js to latest 14.x (current: 14.2.29, vuln in older versions)
-- [ ] Husky + lint-staged pre-commit hooks
+- [ ] WalletConnect project ID (suppresses RainbowKit console warning) — register free at cloud.walletconnect.com
 - [ ] Rainmeter desktop widget JSON export
-- [ ] Daily digest notifications (notifications/digest.py — wrong project)
+- [ ] Daily digest page
 
 ---
 

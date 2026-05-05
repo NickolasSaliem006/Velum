@@ -35,6 +35,11 @@ const ROLES = [
     label: 'Hospital Dashboard',
     color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20',
   },
+  {
+    href: '/audit',
+    label: 'Audit Trail',
+    color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20',
+  },
 ]
 
 export default function LandingPage() {
