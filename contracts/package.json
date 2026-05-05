@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "hardhat compile",
-    "test": "forge test -vv",
+    "test": "node scripts/forge-test.js",
     "test:hardhat": "hardhat test",
     "deploy:local": "hardhat run script/deploy.ts --network localhost",
     "deploy:amoy": "hardhat run script/deploy.ts --network amoy",

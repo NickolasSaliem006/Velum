@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "echo \"No unit tests in web app — run test:e2e for Playwright\" && exit 0",
     "test:e2e": "playwright test"
   },
   "dependencies": {
