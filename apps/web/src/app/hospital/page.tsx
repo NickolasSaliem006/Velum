@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import { useState } from 'react'
@@ -104,7 +105,9 @@ export default function HospitalPage() {
       <header className="border-b border-bone/10 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Building2 className="text-accent w-5 h-5 shrink-0" />
-          <span className="font-semibold text-bone">Velum</span>
+          <Link href="/" className="font-semibold text-bone hover:text-bone/80 transition-colors">
+            Velum
+          </Link>
           <span className="text-bone/40 text-sm hidden sm:inline">/ Hospital Dashboard</span>
         </div>
         <ConnectButton />
