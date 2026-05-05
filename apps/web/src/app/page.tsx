@@ -35,8 +35,8 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="w-full max-w-5xl px-6 pt-24 pb-20 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-bone/20 bg-bone/5 px-4 py-1.5 text-sm text-bone/60 mb-8">
-          <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-          Live on Polygon Amoy Testnet
+          <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
+          Prototype — deploy contracts to go live
         </div>
         <h1 className="text-5xl font-bold tracking-tight text-bone mb-6">
           The Trust Layer for<br />Medical Records
