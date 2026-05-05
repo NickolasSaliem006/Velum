@@ -40,6 +40,11 @@ const ROLES = [
     label: 'Audit Trail',
     color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20',
   },
+  {
+    href: '/docs',
+    label: 'User Manual',
+    color: 'bg-bone/10 hover:bg-bone/20 border border-bone/20',
+  },
 ]
 
 export default function LandingPage() {

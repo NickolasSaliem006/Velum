@@ -8,6 +8,7 @@ test.describe('Landing page', () => {
     await expect(page.getByRole('link', { name: 'Doctor Interface' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Hospital Dashboard' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Audit Trail' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'User Manual' })).toBeVisible()
   })
 
   test('shows prototype disclosure footer', async ({ page }) => {
