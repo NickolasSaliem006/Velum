@@ -121,3 +121,33 @@ test.describe('Audit trail', () => {
     expect(visibleText).toBeGreaterThan(0)
   })
 })
+
+test.describe('User manual (/docs)', () => {
+  test('renders title and ToC', async ({ page }) => {
+    await page.goto('/docs')
+    await expect(page.getByRole('heading', { name: 'Velum — User Manual' })).toBeVisible()
+    await expect(page.getByText('Platform Overview')).toBeVisible()
+    await expect(page.getByText('Debugging Guide')).toBeVisible()
+  })
+
+  test('all major sections are present', async ({ page }) => {
+    await page.goto('/docs')
+    await expect(page.getByText('Prerequisites')).toBeVisible()
+    await expect(page.getByText('Roles & Permissions')).toBeVisible()
+    await expect(page.getByText('Cryptography & What to Expect')).toBeVisible()
+    await expect(page.getByText('Error Reference')).toBeVisible()
+    await expect(page.getByText('FAQ')).toBeVisible()
+  })
+
+  test('back to app link works', async ({ page }) => {
+    await page.goto('/docs')
+    await page.getByRole('link', { name: '← Back to app' }).click()
+    await expect(page).toHaveURL('/')
+  })
+
+  test('sidebar ToC anchor link scrolls to section', async ({ page }) => {
+    await page.goto('/docs')
+    await page.getByRole('link', { name: 'Going Live (Polygon Amoy)' }).click()
+    await expect(page.getByRole('heading', { name: 'Going Live (Polygon Amoy)' })).toBeVisible()
+  })
+})

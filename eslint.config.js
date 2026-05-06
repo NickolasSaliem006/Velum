@@ -31,6 +31,8 @@ export default [
       '**/out/**',
       '**/contracts/artifacts/**',
       '**/contracts/typechain-types/**',
+      '**/contracts/script/**',
+      '**/contracts/scripts/**',
     ],
   },
 ]
