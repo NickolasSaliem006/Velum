@@ -7,7 +7,7 @@
 ## Setup (30s before you start)
 
 1. Open browser at `http://localhost:3000`
-2. Open a second tab at `http://localhost:3001` (IPFS sim health check — should return `{"status":"ok"}`)
+2. Open a second tab at `http://localhost:4001/health` (IPFS sim health check — should return `{"status":"ok"}`)
 3. Have MetaMask installed, connected to Hardhat local network (chain 31337) or Polygon Amoy (80002)
 4. Have 3 accounts ready in MetaMask: Patient, Doctor, Hospital
 5. If running locally without deploy: demo mode works without a wallet — just open the pages
@@ -31,6 +31,7 @@
 **Say:** "Here's the doctor interface. When a doctor writes a medical record, it's not stored in their system. The content is encrypted and content-addressed — think IPFS. Only a SHA-256 hash goes on-chain."
 
 **Show in the form:**
+
 1. Paste a patient wallet address (use the demo patient: `0xCaFe1234567890CaFe1234567890CaFe12345678`)
 2. Paste a 64-char hex CID (use: `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2`)
 3. Select "High" severity — point to the co-sign warning that appears
@@ -55,6 +56,7 @@
 **Click:** "Grant access →" on any record — switches to Grants tab with the record ID pre-filled.
 
 **Fill the form:**
+
 - Verifier address: any hospital address
 - Duration: 7 days
 
@@ -103,7 +105,7 @@
 → ~80k gas on writeRecord (~$0.01 on Polygon). Consent grant is ~50k gas. Negligible at scale.
 
 **"Why not just use a permissioned blockchain like Hyperledger?"**
-→ Permissioned chains require someone to control the validator set. The threat model we're solving is the hospital or government *itself* being the bad actor. Public chain removes that trust assumption.
+→ Permissioned chains require someone to control the validator set. The threat model we're solving is the hospital or government _itself_ being the bad actor. Public chain removes that trust assumption.
 
 ---
 
