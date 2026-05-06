@@ -25,9 +25,9 @@ interaction.
    are fully implemented, mobile-responsive, and connected to wagmi contract hooks. Live
    AES-GCM encryption/decryption works in the browser without a wallet. ZK claim badges
    light up on load.
-2. **Strong test coverage across all layers.** 39 Foundry tests (97.87% line coverage),
-   22 Vitest unit tests (crypto-lib), 9 Vitest unit tests (IPFS-sim), 19 Playwright e2e
-   tests — 89 tests total, 0 failing.
+2. **Strong test coverage across all layers.** 42 Foundry tests (100% line coverage across
+   all 3 contracts), 22 Vitest unit tests (crypto-lib), 9 Vitest unit tests (IPFS-sim),
+   19 Playwright e2e tests — 92 tests total, 0 failing.
 3. **Professional engineering foundation.** Monorepo with pnpm + Turborepo, TypeScript
    throughout, Husky pre-commit hooks, ESLint 9 flat config, CI/CD on GitHub Actions
    (4 jobs: Forge, TypeScript, build, Playwright), grantRole deploy script, `.env.example`
@@ -78,11 +78,11 @@ Run locally: `pnpm test` (unit) · `pnpm --filter @velum/web test:e2e` (e2e)
 
 ## 3. SMART CONTRACTS
 
-| Contract                       | Tests | Coverage     | Deployed   |
-| ------------------------------ | ----- | ------------ | ---------- |
-| `RecordRegistry.sol`           | ✅    | 100% lines   | ❌ Pending |
-| `AccessController.sol`         | ✅    | 93.10% lines | ❌ Pending |
-| `CredentialIssuerRegistry.sol` | ✅    | 100% lines   | ❌ Pending |
+| Contract                       | Tests | Coverage   | Deployed   |
+| ------------------------------ | ----- | ---------- | ---------- |
+| `RecordRegistry.sol`           | ✅    | 100% lines | ❌ Pending |
+| `AccessController.sol`         | ✅    | 100% lines | ❌ Pending |
+| `CredentialIssuerRegistry.sol` | ✅    | 100% lines | ❌ Pending |
 
 Local smoke test (Hardhat fork) passes. Deployment manifest format verified.
 `contracts/script/grantRole.ts` ready for post-deploy credentialing.
