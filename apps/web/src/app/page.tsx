@@ -36,8 +36,8 @@ const FLOW_STEPS = [
 ]
 
 const STATS = [
-  { value: '39', label: 'Foundry tests' },
-  { value: '97.87%', label: 'line coverage' },
+  { value: '42', label: 'Foundry tests' },
+  { value: '100%', label: 'line coverage' },
   { value: '3', label: 'deployed contracts' },
   { value: 'AES-256', label: 'record encryption' },
 ]

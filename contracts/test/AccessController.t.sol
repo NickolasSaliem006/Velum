@@ -149,4 +149,40 @@ contract AccessControllerTest is Test {
         vm.prank(verifier);
         ctrl.logAccess(grantId);
     }
+
+    // ── View functions ────────────────────────────────────────────────────────
+
+    function test_getPatientGrantsReturnsAllGrants() public {
+        bytes32 recordId2 = keccak256("record-2");
+        address verifier2 = makeAddr("verifier2");
+
+        vm.startPrank(patient);
+        bytes32 g1 = ctrl.grantConsent(verifier, RECORD_ID, ONE_DAY);
+        bytes32 g2 = ctrl.grantConsent(verifier2, recordId2, ONE_DAY);
+        vm.stopPrank();
+
+        bytes32[] memory grants = ctrl.getPatientGrants(patient);
+        assertEq(grants.length, 2);
+        assertEq(grants[0], g1);
+        assertEq(grants[1], g2);
+    }
+
+    function test_getPatientGrantsEmptyForNewAddress() public {
+        bytes32[] memory grants = ctrl.getPatientGrants(makeAddr("nobody"));
+        assertEq(grants.length, 0);
+    }
+
+    function test_multipleGrantsSameRecord() public {
+        address verifier2 = makeAddr("verifier2");
+
+        vm.startPrank(patient);
+        bytes32 g1 = ctrl.grantConsent(verifier, RECORD_ID, ONE_DAY);
+        bytes32 g2 = ctrl.grantConsent(verifier2, RECORD_ID, ONE_DAY);
+        vm.stopPrank();
+
+        assertTrue(ctrl.hasAccess(patient, RECORD_ID, verifier));
+        assertTrue(ctrl.hasAccess(patient, RECORD_ID, verifier2));
+        // Grant IDs must be distinct
+        assertTrue(g1 != g2);
+    }
 }

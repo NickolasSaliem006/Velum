@@ -1,6 +1,9 @@
 # VELUM — Decentralized Medical Records
 
-> Startup pitch prototype: patient-controlled medical data with on-chain consent, ZK-verified access, and content-addressed encrypted storage.
+> Startup pitch prototype: patient-controlled medical data with on-chain consent,
+> ZK-verified access, and content-addressed encrypted storage.
+
+[![CI](https://github.com/NickolasSaliem006/Velum/actions/workflows/ci.yml/badge.svg)](https://github.com/NickolasSaliem006/Velum/actions/workflows/ci.yml)
 
 **⚠ PROTOTYPE — For demonstration purposes only. Not for production medical use.**
 
@@ -14,31 +17,56 @@
 # 1. Install dependencies
 pnpm install
 
-# 2. Copy env file and fill in values
-cp .env.example .env
+# 2. Copy env files
+cp apps/web/.env.example apps/web/.env.local
+cp contracts/.env.example contracts/.env
+# Fill in HARDHAT_PRIVATE_KEY (needs Polygon Amoy MATIC)
+# Get free test MATIC: https://faucet.polygon.technology/
 
-# 3. Start local blockchain + deploy contracts
+# 3. Deploy contracts to Polygon Amoy
 cd contracts
-npx hardhat node &
-npx hardhat run script/deploy.ts --network localhost
+npx hardhat run script/deploy.ts --network amoy
+# → writes contracts/deployments/amoy.json
+# → copy deployed addresses into apps/web/.env.local
 
 # 4. Start IPFS simulator
-pnpm --filter ipfs-sim dev
+pnpm --filter @velum/ipfs-sim dev
 
 # 5. Start web app
-pnpm --filter web dev
+pnpm --filter @velum/web dev
 
 # App runs at http://localhost:3000
 ```
 
-## Foundry Tests
+**Demo mode (no wallet, no deploy needed):**
 
 ```bash
-cd contracts
-forge test --gas-report
+pnpm install
+pnpm --filter @velum/web dev
+# All pages work with simulated data
 ```
 
-Expected: **39 tests passing** across 3 contracts.
+---
+
+## Tests
+
+```bash
+# All unit tests (Foundry + Vitest)
+pnpm test
+# → 39 Foundry + 22 Vitest crypto-lib + 9 Vitest ipfs-sim = 70 tests
+
+# Playwright e2e (requires dev server)
+pnpm --filter @velum/web test:e2e
+# → 19 tests across all 5 pages
+
+# Type-check all packages
+pnpm type-check
+
+# Solidity tests with gas report
+cd contracts && forge test --gas-report
+```
+
+Expected: **42 Solidity tests passing, 100% line coverage (all 3 contracts).**
 
 ---
 
@@ -46,32 +74,47 @@ Expected: **39 tests passing** across 3 contracts.
 
 ```
 apps/
-  web/          → Next.js 14 patient/doctor/hospital/audit dashboards
-  ipfs-sim/     → Express CID store (SHA-256, simulates IPFS)
+  web/          → Next.js 15 — patient/doctor/hospital/audit/docs dashboards
+  ipfs-sim/     → Express CID store (SHA-256, simulates IPFS on port 4001)
 packages/
   shared-types/ → TypeScript interfaces shared across apps
-  crypto-lib/   → Ed25519 keypairs, AES-GCM encryption, ZK claim sim
+  crypto-lib/   → Ed25519 keypairs, AES-GCM encryption, ZK claim simulation
 contracts/
   src/          → RecordRegistry, AccessController, CredentialIssuerRegistry
-  test/         → Foundry test suite (39 tests)
-  script/       → Hardhat deployment scripts
+  test/         → Foundry test suite (39 tests, 97.87% line coverage)
+  script/       → deploy.ts, grantRole.ts (Hardhat)
 ```
 
-## Simulations (Not for Production)
+**Monorepo:** pnpm workspaces + Turborepo  
+**Chain:** Polygon Amoy testnet (chain ID 80002)  
+**Wallet:** wagmi v2 + RainbowKit v2
 
-| Component | Simulation | Production Replacement |
-|-----------|-----------|------------------------|
-| ZK proofs | Ed25519-signed JWT-style claims | Groth16 zk-SNARKs (snarkjs) |
-| IPFS | SHA-256 Express store | Real IPFS / Pinata |
-| Multi-sig | On-chain quorum voting | Safe multi-sig wallet |
+---
 
-## Network
+## Simulations (Clearly Labeled)
 
-- **Local dev:** Hardhat (chain 31337)
-- **Testnet:** Polygon Amoy (chain 80002)
+| Component    | Simulation              | Production Replacement               |
+| ------------ | ----------------------- | ------------------------------------ |
+| ZK proofs    | Ed25519-signed claims   | Groth16 zk-SNARKs (snarkjs + Circom) |
+| IPFS         | In-memory SHA-256 store | Real IPFS / Pinata                   |
+| Key wrapping | Raw AES key in base64   | ECIES / threshold encryption         |
+
+Real components: Solidity smart contracts, AES-256-GCM, Ed25519 signatures, on-chain consent enforcement.
+
+---
+
+## Go Live (Polygon Amoy)
+
+1. Get testnet MATIC: `https://faucet.polygon.technology/`
+2. Set `HARDHAT_PRIVATE_KEY` in `contracts/.env`
+3. `cd contracts && npx hardhat run script/deploy.ts --network amoy`
+4. Copy deployed addresses into `apps/web/.env.local`
+5. Grant `DOCTOR_ROLE` to doctor wallets: `npx hardhat run script/grantRole.ts --network amoy`
+
+See [`/docs`](http://localhost:3000/docs) for the full user manual.
 
 ---
 
 ## License
 
-MIT — See [LICENSE](LICENSE)
+MIT

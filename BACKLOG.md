@@ -1,7 +1,7 @@
 # VELUM — Prioritized Backlog
 
 Format: `[Priority] Task — Why`
-Last updated: 2026-05-05
+Last updated: 2026-05-06
 
 ---
 
@@ -40,8 +40,8 @@ Last updated: 2026-05-05
 ## P2 — Nice to have
 
 - [ ] WalletConnect project ID (suppresses RainbowKit console warning) — register free at cloud.walletconnect.com
-- [ ] Rainmeter desktop widget JSON export
-- [ ] Daily digest page
+- [ ] Slither static analysis on all three contracts
+- [ ] Polygonscan contract verification after Amoy deploy
 
 ---
 

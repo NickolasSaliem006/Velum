@@ -64,13 +64,13 @@ cd contracts && npx hardhat run script/deploy.ts --network amoy
 
 ## 2. TEST SUITE
 
-| Layer               | Tests  | Status         | Coverage                    |
-| ------------------- | ------ | -------------- | --------------------------- |
-| Foundry (Solidity)  | 39     | ✅ All passing | 97.87% lines                |
-| Vitest — crypto-lib | 22     | ✅ All passing | Ed25519, AES-GCM, ZK claims |
-| Vitest — ipfs-sim   | 9      | ✅ All passing | CID dedup, integrity, 404   |
-| Playwright e2e      | 19     | ✅ Written     | All 5 pages including /docs |
-| **Total**           | **89** |                |                             |
+| Layer               | Tests  | Status         | Coverage                     |
+| ------------------- | ------ | -------------- | ---------------------------- |
+| Foundry (Solidity)  | 42     | ✅ All passing | 100% lines (all 3 contracts) |
+| Vitest — crypto-lib | 22     | ✅ All passing | Ed25519, AES-GCM, ZK claims  |
+| Vitest — ipfs-sim   | 9      | ✅ All passing | CID dedup, integrity, 404    |
+| Playwright e2e      | 19     | ✅ Written     | All 5 pages including /docs  |
+| **Total**           | **92** |                |                              |
 
 Run locally: `pnpm test` (unit) · `pnpm --filter @velum/web test:e2e` (e2e)
 
@@ -131,5 +131,5 @@ Real Groth16 circuits are on the P3 roadmap.
 
 ---
 
-_Total audit duration: ~10 minutes. Files reviewed: 45. Tests: 89 (70 unit + 19 e2e).
+_Total audit duration: ~10 minutes. Files reviewed: 45. Tests: 92 (73 unit + 19 e2e).
 Zero security vulnerabilities in application code. Audit was read-only._

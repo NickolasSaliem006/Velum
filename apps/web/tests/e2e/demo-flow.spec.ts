@@ -27,9 +27,9 @@ test.describe('Landing page', () => {
 
   test('shows stats bar', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('39')).toBeVisible()
+    await expect(page.getByText('42')).toBeVisible()
     await expect(page.getByText('Foundry tests')).toBeVisible()
-    await expect(page.getByText('97.87%')).toBeVisible()
+    await expect(page.getByText('100%')).toBeVisible()
   })
 })
 
