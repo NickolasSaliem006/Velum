@@ -15,6 +15,22 @@ test.describe('Landing page', () => {
     await page.goto('/')
     await expect(page.getByText('PROTOTYPE NOTE')).toBeVisible()
   })
+
+  test('shows how it works section', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByText('How It Works')).toBeVisible()
+    await expect(page.getByText('Encrypt & Write')).toBeVisible()
+    await expect(page.getByText('Grant Consent')).toBeVisible()
+    await expect(page.getByText('Verify & Access')).toBeVisible()
+    await expect(page.getByText('Immutable Audit')).toBeVisible()
+  })
+
+  test('shows stats bar', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByText('39')).toBeVisible()
+    await expect(page.getByText('Foundry tests')).toBeVisible()
+    await expect(page.getByText('97.87%')).toBeVisible()
+  })
 })
 
 test.describe('Patient portal — demo mode', () => {
