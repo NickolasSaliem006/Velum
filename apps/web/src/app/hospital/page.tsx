@@ -2,11 +2,42 @@
 import Link from 'next/link'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
-import { useState } from 'react'
-import { Building2, FileText, Clock, ShieldCheck } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Building2, FileText, Clock, ShieldCheck, Download, Unlock, Loader2 } from 'lucide-react'
 import { SEVERITY_LABELS } from '@/lib/contracts'
+import { encryptRecord, decryptRecord } from '@velum/crypto-lib'
+import { uploadToIpfs, retrieveFromIpfs, IpfsError } from '@/lib/ipfs'
+import type { EncryptedRecord } from '@velum/shared-types'
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
+
+/**
+ * Demo plaintexts — encrypted+uploaded to the IPFS sim on mount so the
+ * "Fetch & decrypt" button can do a real round-trip. SIMULATION: in production
+ * the wrappedKey would be ECIES-encrypted to the hospital's public key and
+ * unwrapped after on-chain consent verification.
+ */
+const DEMO_PLAINTEXTS: Record<string, string> = {
+  '0xa3f7c2e1d4b59f0e8c1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3':
+    'Patient: Nickolas Saliem, DOB: 1999-03-14\nDiagnosis: Mild hypertension (I10)\nPrescription: Amlodipine 5mg, once daily\nNote: Follow up in 3 months. Monitor blood pressure.',
+  '0xb4e8d3f2c1a0b9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4':
+    'Patient: Nickolas Saliem, DOB: 1999-03-14\nDiagnosis: Acute appendicitis (K35.89)\nProcedure: Laparoscopic appendectomy — successful\nDischarge: 2025-10-12. Full recovery expected in 2 weeks.',
+  '0xc5f9e4d3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5':
+    'Patient: Nickolas Saliem, DOB: 1999-03-14\nDiagnosis: Seasonal allergic rhinitis (J30.1)\nPrescription: Loratadine 10mg PRN\nNote: Avoid dusty environments. Review in 6 months.',
+}
+
+interface UploadedRecord {
+  cid: string
+  wrappedKey: string
+  encrypted: EncryptedRecord
+}
+
+type FetchState =
+  | { phase: 'idle' }
+  | { phase: 'fetching' }
+  | { phase: 'decrypting' }
+  | { phase: 'plaintext'; text: string }
+  | { phase: 'error'; message: string }
 
 const DEMO_CONSENTED_RECORDS = [
   {
@@ -96,8 +127,69 @@ export default function HospitalPage() {
   const { isConnected } = useAccount()
   const isDemo = !isConnected
   const [selected, setSelected] = useState<`0x${string}` | null>(null)
+  const [uploaded, setUploaded] = useState<Record<string, UploadedRecord>>({})
+  const [fetchStates, setFetchStates] = useState<Record<string, FetchState>>({})
 
-  const records = isDemo ? DEMO_CONSENTED_RECORDS : []
+  // On mount in demo mode: encrypt each demo plaintext and upload to the IPFS
+  // sim so the "Fetch & decrypt" button below can do a real round-trip.
+  // Silently skip if the sim is offline — the page still renders without it.
+  useEffect(() => {
+    if (!isDemo) return
+    let cancelled = false
+    ;(async () => {
+      const results: Record<string, UploadedRecord> = {}
+      for (const [recordId, plaintext] of Object.entries(DEMO_PLAINTEXTS)) {
+        try {
+          const { encrypted, rawKeyBase64 } = await encryptRecord(plaintext)
+          const { cid } = await uploadToIpfs(encrypted.ciphertext)
+          results[recordId] = { cid, wrappedKey: rawKeyBase64, encrypted }
+        } catch {
+          // ipfs-sim probably not running — fall through, button will show error
+        }
+      }
+      if (!cancelled) setUploaded(results)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [isDemo])
+
+  async function handleFetchAndDecrypt(recordId: `0x${string}`) {
+    const u = uploaded[recordId]
+    if (!u) {
+      setFetchStates((s) => ({
+        ...s,
+        [recordId]: {
+          phase: 'error',
+          message: 'IPFS sim not reachable. Run: pnpm --filter @velum/ipfs-sim dev',
+        },
+      }))
+      return
+    }
+    setFetchStates((s) => ({ ...s, [recordId]: { phase: 'fetching' } }))
+    try {
+      const ciphertext = await retrieveFromIpfs(u.cid)
+      setFetchStates((s) => ({ ...s, [recordId]: { phase: 'decrypting' } }))
+      const text = await decryptRecord({ ...u.encrypted, ciphertext }, u.wrappedKey)
+      setFetchStates((s) => ({ ...s, [recordId]: { phase: 'plaintext', text } }))
+    } catch (err) {
+      const message =
+        err instanceof IpfsError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Decryption failed'
+      setFetchStates((s) => ({ ...s, [recordId]: { phase: 'error', message } }))
+    }
+  }
+
+  const records = isDemo
+    ? DEMO_CONSENTED_RECORDS.map((r) => ({
+        ...r,
+        // Display the real SHA-256 CID once uploaded, else the placeholder
+        cid: uploaded[r.id]?.cid ?? r.cid,
+      }))
+    : []
 
   return (
     <div className="min-h-screen bg-obsidian">
@@ -220,6 +312,65 @@ export default function HospitalPage() {
                         patient&apos;s key.
                       </p>
                     </div>
+
+                    {/* Fetch & decrypt — exercises the real ipfs-sim round-trip */}
+                    {isDemo &&
+                      (() => {
+                        const fs = fetchStates[rec.id] ?? { phase: 'idle' }
+                        const isReady = uploaded[rec.id] !== undefined
+                        return (
+                          <div
+                            className="pt-2 mt-1 border-t border-bone/10"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              onClick={() => handleFetchAndDecrypt(rec.id)}
+                              disabled={
+                                !isReady || fs.phase === 'fetching' || fs.phase === 'decrypting'
+                              }
+                              className="flex items-center gap-1.5 text-xs bg-accent/15 hover:bg-accent/25 disabled:opacity-40 text-accent rounded px-3 py-1.5 transition-colors"
+                            >
+                              {fs.phase === 'fetching' ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" /> Fetching from IPFS
+                                  sim…
+                                </>
+                              ) : fs.phase === 'decrypting' ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" /> Decrypting AES-GCM…
+                                </>
+                              ) : fs.phase === 'plaintext' ? (
+                                <>
+                                  <Unlock className="w-3 h-3" /> Decrypted ✓
+                                </>
+                              ) : (
+                                <>
+                                  <Download className="w-3 h-3" /> Fetch & decrypt
+                                </>
+                              )}
+                            </button>
+                            {!isReady && (
+                              <p className="text-xs text-bone/30 mt-2">
+                                Waiting for IPFS sim upload… start it with{' '}
+                                <span className="font-mono">pnpm --filter @velum/ipfs-sim dev</span>
+                              </p>
+                            )}
+                            {fs.phase === 'plaintext' && (
+                              <div className="mt-2 bg-green-400/5 border border-green-400/20 rounded p-3">
+                                <p className="text-xs text-bone/30 mb-1">
+                                  Decrypted record content
+                                </p>
+                                <pre className="text-xs text-green-400/90 whitespace-pre-wrap font-mono leading-relaxed">
+                                  {fs.text}
+                                </pre>
+                              </div>
+                            )}
+                            {fs.phase === 'error' && (
+                              <p className="text-xs text-red-400 mt-2">{fs.message}</p>
+                            )}
+                          </div>
+                        )
+                      })()}
                   </div>
                 )}
               </div>

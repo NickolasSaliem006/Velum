@@ -2,8 +2,9 @@ import { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomicfoundation/hardhat-foundry'
 import * as dotenv from 'dotenv'
+import * as path from 'path'
 
-dotenv.config() // loads contracts/.env when hardhat runs from contracts/
+dotenv.config({ path: path.resolve(__dirname, '.env') })
 
 const PRIVATE_KEY = process.env['HARDHAT_PRIVATE_KEY'] ?? '0x' + '0'.repeat(64)
 const POLYGONSCAN_API_KEY = process.env['POLYGONSCAN_API_KEY'] ?? ''

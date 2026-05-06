@@ -96,7 +96,7 @@
 → Social recovery multisig (e.g. Safe) or guardian keys — this is a UX layer on top of the consent model, not a flaw in it.
 
 **"How does the hospital actually decrypt the record?"**
-→ The patient encrypts each record with a symmetric key, then wraps that key with the verifier's public key (ECIES). The on-chain grant is a pointer; the key is off-chain. In this prototype, wrapping is simulated — real ECIES is the P1 item.
+→ The patient encrypts each record with a symmetric key, then wraps that key with the verifier's public key (ECIES). The on-chain grant is a pointer; the key is off-chain. In this prototype, wrapping is simulated — real ECIES is on the P3 (post-pitch) roadmap.
 
 **"Is this HIPAA compliant?"**
 → HIPAA is a US law; our target market is emerging markets with weaker health data infrastructure. The architecture is HIPAA-compatible (patient consent, audit log, encryption at rest) but we haven't done a formal assessment.

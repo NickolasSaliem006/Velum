@@ -14,10 +14,20 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-  },
+  webServer: [
+    {
+      // IPFS sim must come first — Next.js doesn't depend on it for boot,
+      // but the Doctor/Hospital crypto round-trip tests do.
+      command: 'pnpm --filter @velum/ipfs-sim dev',
+      url: 'http://localhost:4001/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 30_000,
+    },
+    {
+      command: 'pnpm dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+    },
+  ],
 })

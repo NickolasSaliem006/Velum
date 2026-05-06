@@ -93,6 +93,22 @@ test.describe('Doctor interface — demo mode', () => {
     await page.getByRole('button', { name: 'High' }).click()
     await expect(page.getByText('High severity requires a second doctor')).toBeVisible()
   })
+
+  test('encrypt + upload to IPFS sim auto-fills the CID field', async ({ page }) => {
+    await page.goto('/doctor')
+    await expect(page.getByText('Generate CID from content')).toBeVisible()
+    await page
+      .getByPlaceholder('Patient: Jane Doe')
+      .fill('Patient: Test Patient\nDiagnosis: Routine checkup\nAll normal.')
+    await page.getByRole('button', { name: /Encrypt → Upload → Auto-fill CID/ }).click()
+    // Wait for the success message + CID populated in the form
+    await expect(page.getByText(/Uploaded \d+ bytes of ciphertext/)).toBeVisible({
+      timeout: 10_000,
+    })
+    // The 64-char hex CID should now be in the form
+    const cidInput = page.getByPlaceholder('a1b2c3d4…')
+    await expect(cidInput).toHaveValue(/^[0-9a-f]{64}$/)
+  })
 })
 
 test.describe('Hospital dashboard — demo mode', () => {
@@ -107,6 +123,21 @@ test.describe('Hospital dashboard — demo mode', () => {
     const records = page.locator('.rounded-lg.border.cursor-pointer')
     await records.first().click()
     await expect(page.getByText('Content CID (SHA-256)')).toBeVisible()
+  })
+
+  test('fetch & decrypt round-trip pulls plaintext from IPFS sim', async ({ page }) => {
+    await page.goto('/hospital')
+    // Expand the first record
+    const records = page.locator('.rounded-lg.border.cursor-pointer')
+    await records.first().click()
+    // The button should be present and become enabled once mount-effect uploads finish
+    const fetchButton = page.getByRole('button', { name: /Fetch & decrypt/ })
+    await expect(fetchButton).toBeVisible()
+    await expect(fetchButton).toBeEnabled({ timeout: 10_000 })
+    await fetchButton.click()
+    // Decrypted plaintext should render
+    await expect(page.getByText('Decrypted record content')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Patient: Nickolas Saliem/).first()).toBeVisible()
   })
 })
 
