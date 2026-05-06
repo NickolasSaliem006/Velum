@@ -109,7 +109,7 @@ Real Groth16 circuits are on the P3 roadmap.
 | Dimension        | Score | Notes                                                                               |
 | ---------------- | ----- | ----------------------------------------------------------------------------------- |
 | Visual polish    | 9/10  | Geist font, dark theme, mobile-responsive, 44px touch targets                       |
-| Technical depth  | 8/10  | Real contracts, real crypto, 97.87% coverage — loses 2 for no Amoy deploy yet       |
+| Technical depth  | 8/10  | Real contracts, real crypto, 100% line coverage — loses 2 for no Amoy deploy yet    |
 | Demo reliability | 7/10  | Full demo-able in mock mode; live mode blocked on deploy credentials                |
 | Code quality     | 8/10  | 0 `any`, 0 `@ts-ignore`, 0 console.log, Husky pre-commit, ESLint clean              |
 | Story coherence  | 9/10  | Accurate claims, simulation clearly disclosed, How It Works section explains flow   |

@@ -12,7 +12,7 @@ Last updated: 2026-05-06
 - [x] Hospital dashboard: consented records list with expiry ✅
 - [x] Crypto-lib Vitest tests: Ed25519 + AES-GCM + ZK claims (22 tests) ✅
 - [x] IPFS-sim Vitest tests: CID dedup + integrity (9 tests) ✅
-- [x] Solidity tests: full coverage 39 tests, 97.87% lines ✅
+- [x] Solidity tests: full coverage 42 tests, 100% lines (all 3 contracts) ✅
 - [x] Demo script: 3-minute pitch + Q&A prep ✅
 - [x] README with quickstart ✅
 - [x] wagmi + RainbowKit wired to all contracts ✅
@@ -40,7 +40,7 @@ Last updated: 2026-05-06
 ## P2 — Nice to have
 
 - [ ] WalletConnect project ID (suppresses RainbowKit console warning) — register free at cloud.walletconnect.com
-- [ ] Slither static analysis on all three contracts
+- [x] Slither static analysis — added as CI job (`crytic/slither-action`, fail-on: high) ✅
 - [ ] Polygonscan contract verification after Amoy deploy
 
 ---
