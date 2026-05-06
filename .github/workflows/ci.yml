@@ -22,6 +22,17 @@ jobs:
         working-directory: contracts
         run: forge test --gas-report
 
+      - name: Generate coverage report
+        working-directory: contracts
+        run: forge coverage --report lcov --report-file lcov.info
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: forge-lcov
+          path: contracts/lcov.info
+          retention-days: 30
+
   slither:
     name: Slither Analysis
     runs-on: ubuntu-latest
