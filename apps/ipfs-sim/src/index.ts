@@ -48,7 +48,7 @@ app.head('/retrieve/:cid', (req, res) => {
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', entries: store.size }))
 
-const PORT = parseInt(process.env['IPFS_SIM_PORT'] ?? '3001', 10)
+const PORT = parseInt(process.env['IPFS_SIM_PORT'] ?? '4001', 10)
 
 if (require.main === module) {
   app.listen(PORT, () => {
